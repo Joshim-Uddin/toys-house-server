@@ -75,6 +75,12 @@ async function run() {
       const result = await toysCollections.findOne(query)
       res.send(result)
     })
+    app.get('/update/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await toysCollections.findOne(query)
+      res.send(result)
+    })
 
     app.post('/addtoy', async (req, res) => {
         const body = req.body;
@@ -94,6 +100,12 @@ async function run() {
       };
       const options = {upsert:true}
       const result = await toysCollections.updateOne(filter, updateToy, options);
+      res.send(result);
+    })
+
+    app.delete('/toy/:id', async(req, res)=>{
+      const id = req.params.id;
+      const result = await toysCollections.deleteOne({_id: new ObjectId(id)})
       res.send(result);
     })
     // Send a ping to confirm a successful connection
