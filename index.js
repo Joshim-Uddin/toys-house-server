@@ -68,6 +68,13 @@ async function run() {
       const result = await toysCollections.find(query).toArray()
       res.send(result)
     })
+    
+    app.get('/toy/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await toysCollections.findOne(query)
+      res.send(result)
+    })
 
     app.post('/addtoy', async (req, res) => {
         const body = req.body;
