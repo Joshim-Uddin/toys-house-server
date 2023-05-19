@@ -31,7 +31,7 @@ const toysCollections = client.db('toysData').collection('toys');
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     app.get('/alltoys', async (req, res) => {
         const result = await toysCollections.find().limit(20).toArray();
@@ -52,12 +52,12 @@ async function run() {
 
     const result = await toysCollections.createIndex({name: 1})
 
-    app.get('/allcategorytoys/:text', async (req, res) => {
+    app.get('/allname/:text', async (req, res) => {
       const searchText = req.params.text;
         const result = await toysCollections.find({name:{$regex: searchText, $options:'i'}}).toArray();
           res.send(result);
     })
-    app.get('/allcategorytoys/', async (req, res) => {
+    app.get('/allname/', async (req, res) => {
         const result = await toysCollections.find().toArray();
           res.send(result);
     })
