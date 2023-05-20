@@ -64,10 +64,27 @@ async function run() {
 
     app.get('/alltoy', async (req, res) => {
       const queryData = req.query.email;
+      const value = Number(req.query.sort);
       const query = {email: queryData}
-      const result = await toysCollections.find(query).toArray()
+      let result ;
+      if(queryData && value){
+        const sort = {price: value}
+        result = await toysCollections.find(query).sort(sort).toArray()
+      }else{
+        result = await toysCollections.find(query).toArray()
+      }
       res.send(result)
     })
+
+    // app.get('/alltoy/:value', async (req, res) => {
+    //   const queryData = req.query.email;
+    //   const value = req.params.value;
+    //   
+    //   const query = {email: queryData}
+    //   
+    //   // res.send(result)
+    //   console.log(result)
+    // })
     
     app.get('/toy/:id', async (req, res) => {
       const id = req.params.id;
