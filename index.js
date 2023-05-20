@@ -27,6 +27,7 @@ const client = new MongoClient(uri, {
 });
 
 const toysCollections = client.db('toysData').collection('toys');
+const reviewCollections = client.db('toysData').collection('reviews');
 
 async function run() {
   try {
@@ -75,16 +76,6 @@ async function run() {
       }
       res.send(result)
     })
-
-    // app.get('/alltoy/:value', async (req, res) => {
-    //   const queryData = req.query.email;
-    //   const value = req.params.value;
-    //   
-    //   const query = {email: queryData}
-    //   
-    //   // res.send(result)
-    //   console.log(result)
-    // })
     
     app.get('/toy/:id', async (req, res) => {
       const id = req.params.id;
@@ -98,10 +89,20 @@ async function run() {
       const result = await toysCollections.findOne(query)
       res.send(result)
     })
+    app.get('/comments', async (req, res) => {
+      const result = await reviewCollections.find().toArray()
+      res.send(result)
+    })
 
     app.post('/addtoy', async (req, res) => {
         const body = req.body;
         const result = await toysCollections.insertOne(body)
+        res.send(result);
+    })
+
+    app.post('/addcomment', async (req, res) => {
+        const body = req.body;
+        const result = await reviewCollections.insertOne(body)
         res.send(result);
     })
 
