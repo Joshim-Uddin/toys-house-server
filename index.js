@@ -1,6 +1,7 @@
 const express = require('express');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
+const jwt = require('jsonwebtoken')
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
@@ -29,11 +30,33 @@ const client = new MongoClient(uri, {
 const toysCollections = client.db('toysData').collection('toys');
 const reviewCollections = client.db('toysData').collection('reviews');
 
+//jwt verification
+const jwtVerify = (req, res, next)=>{
+  const authorization = req.headers.authorization;
+  if(!authorization){
+    return res.status(401).send({error:true, message: 'Invalid authorization'})
+  }
+  const token = authorization.split(' ')[1];
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded)=>{
+    if(err){
+      return res.status(403).send({error:true, message:'Access Denied'});
+    }
+    req.decoded = decoded;
+    next();
+  })
+}
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
+    app.post('/jwt', (req, res)=>{
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+      res.send({token});
+    })
+    //services
     app.get('/alltoys', async (req, res) => {
         const result = await toysCollections.find().limit(20).toArray();
         res.send(result);
@@ -63,10 +86,19 @@ async function run() {
           res.send(result);
     })
 
-    app.get('/alltoy', async (req, res) => {
+    app.get('/alltoy', jwtVerify, async (req, res) => {
+      const decoded = req.decoded;
       const queryData = req.query.email;
+      if(decoded.email !== queryData){
+        return res.status(403).send({error:1, message: "Forbidden Access"});
+      }
+
+     
       const value = Number(req.query.sort);
-      const query = {email: queryData}
+      let query;
+      if(queryData){
+        query = {email: queryData}
+      }
       let result ;
       if(queryData && value){
         const sort = {price: value}
